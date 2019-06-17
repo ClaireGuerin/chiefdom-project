@@ -9,6 +9,8 @@ Created on Mon Jun 17 12:43:08 2019
 #import math
 import numpy as np
 from functools import reduce
+from itertools import repeat
+import dictmanip as dm
 
 def fertilityFunction(xi,x0,e,params):
     gamma = params[0]
@@ -43,3 +45,14 @@ def mutation(mutationStep,correlationPattern,numberMutants):
         
     return mut
         
+def lifeCycle(population, parameters):
+    populationPhenotypes = population[0]
+    environmentalStates = population[1]
+    probabilityMutation = parameters['probability mutation']
+    mutationStep = parameters['mutation step']
+    fertilityParameters = dm.extract(parameters,['density competition','basal fertility','cooperation cost','cooperation benefit'])
+    dispersalRate = parameters['dispersal rate']
+    numberDemes = parameters['demes number']
+    mutationCorrelationCoefficient = parameters['mutation correlation coefficient']
+    
+    meanPhenotypesPerDemes = np.mean(populationPhenotypes,axis=1)
