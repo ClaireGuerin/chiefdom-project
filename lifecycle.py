@@ -9,7 +9,7 @@ Created on Mon Jun 17 12:43:08 2019
 #import math
 import numpy as np
 from functools import reduce
-from itertools import repeat
+#from itertools import repeat
 import dictmanip as dm
 
 def fertilityFunction(xi,x0,e,params):
@@ -46,13 +46,47 @@ def mutation(mutationStep,correlationPattern,numberMutants):
     return mut
         
 def lifeCycle(population, parameters):
+    
+    # EXTRACT VALUES AND PARAMETERS
+    
     populationPhenotypes = population[0]
     environmentalStates = population[1]
     probabilityMutation = parameters['probability mutation']
     mutationStep = parameters['mutation step']
     fertilityParameters = dm.extract(parameters,['density competition','basal fertility','cooperation cost','cooperation benefit'])
     dispersalRate = parameters['dispersal rate']
-    numberDemes = parameters['demes number']
+    demeNumber = parameters['demes number']
     mutationCorrelationCoefficient = parameters['mutation correlation coefficient']
     
-    meanPhenotypesPerDemes = np.mean(populationPhenotypes,axis=1)
+    traitsNumber = populationPhenotypes[0].shape[1]
+    
+    for deme in range(demeNumber): 
+        demeSize = environmentalStates[deme]
+        demePhenotypes = populationPhenotypes[deme]
+        demeEnvironment = environmentalStates[deme]
+        demeMeanPhenotypes = np.mean(demePhenotypes,axis=0)
+        tmpDemeOffspring = np.full(2,np.nan)
+        mutationCorrelationPattern = correlation(mutationStep,mutationCorrelationCoefficient)
+        
+        # REPRODUCTION
+        
+        for ind in range(demeSize):
+            individualPhenotype = demePhenotypes[ind]
+            individualFertility = fertilityFunction(individualPhenotype,demeMeanPhenotypes,demeEnvironment,fertilityParameters)
+            numberOffspring = np.random.poisson(10**(-6)+individualFertility)
+            tmpDemeOffspring = np.vstack((tmpDemeOffspring,np.repeat([individualPhenotype],numberOffspring,axis=0)))
+            
+        demeOffspring = np.delete(tmpDemeOffspring,0,axis=0)
+        newDemeSize = demeOffspring.shape[0]
+        
+        # MUTATION
+        
+        demeMutants = np.random.choice([0,1],newDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
+        demeNumberMutants = sum(demeMutants)
+        demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,demeNumberMutants)
+        
+        for item in range(newDemeSize):
+            demeMutants
+            
+            
+            
