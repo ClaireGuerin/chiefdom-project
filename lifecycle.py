@@ -35,15 +35,35 @@ def correlation(mutationStep,correlationCoefficient):
         
     return corr
     
-def mutation(mutationStep,correlationPattern,numberMutants):
+def mutation(mutationStep,correlationPattern,numberIndividuals):
     numberTraits = len(mutationStep)
     if numberTraits>1:
-        mut = np.random.multivariate_normal(np.repeat(0,numberTraits),correlationPattern,numberMutants)
+        mut = np.random.multivariate_normal(np.repeat(0,numberTraits),correlationPattern,numberIndividuals)
     
     else:
-        mut = np.random.normal(0,mutationStep,numberMutants)
+        mut = np.random.normal(0,mutationStep,numberIndividuals)
         
     return mut
+
+def applyMutation(mutationEventBoolean,originalPhenotype,phenotypeDeviation):
+    if mutationEventBoolean:
+        tmp = originalPhenotype + phenotypeDeviation
+        
+    else:
+        tmp = originalPhenotype
+        
+    return tmp
+
+def phenotypeBoundaries(unboundedPhenotype,lowBoundary,uppBoundary):
+    if unboundedPhenotype < lowBoundary:
+        tmp = float(lowBoundary + 10**(-6))
+    elif unboundedPhenotype < 1:
+        tmp = float(uppBoundary - 10**(-6))
+    else:
+        tmp = unboundedPhenotype
+    return tmp
+    
+    
         
 def lifeCycle(population, parameters):
     
@@ -58,7 +78,8 @@ def lifeCycle(population, parameters):
     demeNumber = parameters['demes number']
     mutationCorrelationCoefficient = parameters['mutation correlation coefficient']
     
-    traitsNumber = populationPhenotypes[0].shape[1]
+    #traitsNumber = populationPhenotypes[0].shape[1]
+    populationMigrants = np.full(demeNumber,np.nan)
     
     for deme in range(demeNumber): 
         demeSize = environmentalStates[deme]
@@ -82,11 +103,28 @@ def lifeCycle(population, parameters):
         # MUTATION
         
         demeMutants = np.random.choice([0,1],newDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
-        demeNumberMutants = sum(demeMutants)
-        demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,demeNumberMutants)
+        #demeNumberMutants = sum(demeMutants)
+        demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,newDemeSize)
         
-        for item in range(newDemeSize):
-            demeMutants
+        demeMutateOffspring = np.full(demeOffspring.shape,np.nan)
+        
+        # MIGRATION
+        
+        demeMigrants = np.random.choice([0,1],newDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
+        otherDemes = 
+        
+        for offspring in range(newDemeSize):
+             tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
+             demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
+             
+            if demeMigrants     
+            
+            
+        
+        
+                
+        
+                
             
             
             
