@@ -13,10 +13,10 @@ from functools import reduce
 import dictmanip as dm
 
 def fertilityFunction(xi,x0,e,params):
-    gamma = params[0]
-    fb = params[1]
-    c = params[2]
-    b = params[3]
+    gamma = params['density competition']
+    fb = params['basal fertility']
+    c = params['cooperation cost']
+    b = params['cooperation benefit']
     
     return max(0,round(fb*(1-c*xi[0]**2+b*x0[0])/(1+gamma*e[0]),3))
 
@@ -62,8 +62,6 @@ def phenotypeBoundaries(unboundedPhenotype,lowBoundary,uppBoundary):
     else:
         tmp = unboundedPhenotype
     return tmp
-    
-    
         
 def lifeCycle(population, parameters):
     
@@ -78,15 +76,17 @@ def lifeCycle(population, parameters):
     demeNumber = parameters['demes number']
     mutationCorrelationCoefficient = parameters['mutation correlation coefficient']
     
-    #traitsNumber = populationPhenotypes[0].shape[1]
-    populationMigrants = np.full(demeNumber,np.nan)
+    traitsNumber = populationPhenotypes[0].shape[1]
+    allDemesList = list(range(demeNumber))
+    tmpPopulationMigration = [np.full(traitsNumber,np.nan)]*demeNumber
+    tmpEnvStates = []
     
-    for deme in range(demeNumber): 
-        demeSize = environmentalStates[deme]
+    for deme in allDemesList: 
+        demeSize = environmentalStates[deme][0]
         demePhenotypes = populationPhenotypes[deme]
         demeEnvironment = environmentalStates[deme]
         demeMeanPhenotypes = np.mean(demePhenotypes,axis=0)
-        tmpDemeOffspring = np.full(2,np.nan)
+        tmpDemeOffspring = np.full(traitsNumber,np.nan)
         mutationCorrelationPattern = correlation(mutationStep,mutationCorrelationCoefficient)
         
         # REPRODUCTION
@@ -99,6 +99,7 @@ def lifeCycle(population, parameters):
             
         demeOffspring = np.delete(tmpDemeOffspring,0,axis=0)
         newDemeSize = demeOffspring.shape[0]
+        tmpEnvStates.append([newDemeSize])
         
         # MUTATION
         
@@ -111,19 +112,26 @@ def lifeCycle(population, parameters):
         # MIGRATION
         
         demeMigrants = np.random.choice([0,1],newDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
-        otherDemes = 
+        otherDemesTmp = allDemesList
+        otherDemesTmp.remove(deme)
+        demeMigrantsDestinations = np.random.choice(otherDemesTmp,newDemeSize,True)
         
         for offspring in range(newDemeSize):
              tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
              demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
              
-            if demeMigrants     
-            
-            
+             if demeMigrants[offspring]:
+                 tmpPopulationMigration[demeMigrantsDestinations[offspring]] = np.vstack((tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
+             else:
+                 tmpPopulationMigration[deme] = np.vstack((tmpPopulationMigration[deme],demeMutateOffspring[offspring]))
+                 
+        tmpPopulationMigration[deme] = np.delete(tmpPopulationMigration[deme],0,axis=0)
         
-        
-                
-        
+    newPopulationPhenotypes = tmpPopulationMigration
+    newPopulationEnvironmentalStates = tmpEnvStates
+    
+    return [newPopulationPhenotypes,newPopulationEnvironmentalStates]
+    
                 
             
             
