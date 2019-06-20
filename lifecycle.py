@@ -77,14 +77,13 @@ def lifeCycle(population, parameters):
     mutationCorrelationCoefficient = parameters['mutation correlation coefficient']
     
     traitsNumber = populationPhenotypes[0].shape[1]
-    allDemesList = list(range(demeNumber))
+    allDemesList = np.arange(0,demeNumber)
     tmpPopulationMigration = [np.full(traitsNumber,np.nan)]*demeNumber
-    tmpEnvStates = []
     
     for deme in allDemesList: 
-        demeSize = environmentalStates[deme][0]
-        demePhenotypes = populationPhenotypes[deme]
         demeEnvironment = environmentalStates[deme]
+        demePhenotypes = populationPhenotypes[deme]
+        demeSize = demeEnvironment[0]
         demeMeanPhenotypes = np.mean(demePhenotypes,axis=0)
         tmpDemeOffspring = np.full(traitsNumber,np.nan)
         mutationCorrelationPattern = correlation(mutationStep,mutationCorrelationCoefficient)
@@ -98,25 +97,25 @@ def lifeCycle(population, parameters):
             tmpDemeOffspring = np.vstack((tmpDemeOffspring,np.repeat([individualPhenotype],numberOffspring,axis=0)))
             
         demeOffspring = np.delete(tmpDemeOffspring,0,axis=0)
-        newDemeSize = demeOffspring.shape[0]
-        tmpEnvStates.append([newDemeSize])
+        tmpNewDemeSize = demeOffspring.shape[0]
+        #tmpEnvStates.append([tmpNewDemeSize])
         
         # MUTATION
         
-        demeMutants = np.random.choice([0,1],newDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
+        demeMutants = np.random.choice([0,1],tmpNewDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
         #demeNumberMutants = sum(demeMutants)
-        demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,newDemeSize)
+        demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,tmpNewDemeSize)
         
         demeMutateOffspring = np.full(demeOffspring.shape,np.nan)
         
         # MIGRATION
         
-        demeMigrants = np.random.choice([0,1],newDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
+        demeMigrants = np.random.choice([0,1],tmpNewDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
         otherDemesTmp = allDemesList
-        otherDemesTmp.remove(deme)
-        demeMigrantsDestinations = np.random.choice(otherDemesTmp,newDemeSize,True)
+        otherDemes = np.delete(otherDemesTmp,deme)
+        demeMigrantsDestinations = np.random.choice(otherDemes,tmpNewDemeSize,True)
         
-        for offspring in range(newDemeSize):
+        for offspring in range(tmpNewDemeSize):
              tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
              demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
              
@@ -128,7 +127,8 @@ def lifeCycle(population, parameters):
         tmpPopulationMigration[deme] = np.delete(tmpPopulationMigration[deme],0,axis=0)
         
     newPopulationPhenotypes = tmpPopulationMigration
-    newPopulationEnvironmentalStates = tmpEnvStates
+    newPopulationEnvironmentalStates = []
+    for i in newPopulationPhenotypes: newPopulationEnvironmentalStates.append([i.shape[0]])
     
     return [newPopulationPhenotypes,newPopulationEnvironmentalStates]
     
