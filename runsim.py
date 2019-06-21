@@ -40,4 +40,6 @@ def populationDynamics(globalParameters,localParameters):
         newTmpPop = lc.lifeCycle(tmpPop,localParameters)
         tmpPop = newTmpPop
         
-populationDynamics(globalParsDict,localParsDict)
+    return tmpPop
+        
+test = populationDynamics(globalParsDict,localParsDict)
