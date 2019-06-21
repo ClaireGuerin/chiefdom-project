@@ -100,29 +100,31 @@ def lifeCycle(population, parameters):
         tmpNewDemeSize = demeOffspring.shape[0]
         #tmpEnvStates.append([tmpNewDemeSize])
         
-        # MUTATION
+        if tmpNewDemeSize > 0:
         
-        demeMutants = np.random.choice([0,1],tmpNewDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
-        #demeNumberMutants = sum(demeMutants)
-        demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,tmpNewDemeSize)
+            # MUTATION
         
-        demeMutateOffspring = np.full(demeOffspring.shape,np.nan)
+            demeMutants = np.random.choice([0,1],tmpNewDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
+            #demeNumberMutants = sum(demeMutants)
+            demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,tmpNewDemeSize)
         
-        # MIGRATION
+            demeMutateOffspring = np.full(demeOffspring.shape,np.nan)
         
-        demeMigrants = np.random.choice([0,1],tmpNewDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
-        otherDemesTmp = allDemesList
-        otherDemes = np.delete(otherDemesTmp,deme)
-        demeMigrantsDestinations = np.random.choice(otherDemes,tmpNewDemeSize,True)
+            # MIGRATION
         
-        for offspring in range(tmpNewDemeSize):
-             tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
-             demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
+            demeMigrants = np.random.choice([0,1],tmpNewDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
+            otherDemesTmp = allDemesList
+            otherDemes = np.delete(otherDemesTmp,deme)
+            demeMigrantsDestinations = np.random.choice(otherDemes,tmpNewDemeSize,True)
+        
+            for offspring in range(tmpNewDemeSize):
+                tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
+                demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
              
-             if demeMigrants[offspring]:
-                 tmpPopulationMigration[demeMigrantsDestinations[offspring]] = np.vstack((tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
-             else:
-                 tmpPopulationMigration[deme] = np.vstack((tmpPopulationMigration[deme],demeMutateOffspring[offspring]))
+                if demeMigrants[offspring]:
+                    tmpPopulationMigration[demeMigrantsDestinations[offspring]] = np.vstack((tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
+                else:
+                    tmpPopulationMigration[deme] = np.vstack((tmpPopulationMigration[deme],demeMutateOffspring[offspring]))
                  
         tmpPopulationMigration[deme] = np.delete(tmpPopulationMigration[deme],0,axis=0)
         

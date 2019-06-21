@@ -36,9 +36,26 @@ def populationDynamics(globalParameters,localParameters):
     for i in initialPhenotypes: initialEnvironment.append([len(i)])
     tmpPop = [initialPhenotypes,initialEnvironment]
     
+    # OUTPUT FILES
+    fileMeanPhenotypes = open("meanphenotypes.txt", "a+")
+    fileMeanEnvironments = open("meanenvironments.txt", "a+")
+    fileParameters = open("parameters","a+")
+    print(localParameters,file=fileParameters)
+    
     for gen in range(generationsNumber):
+        flattenPhen = []
+        flattenEnv = []
+        for (demePhen,demeEnv) in zip(tmpPop[0],tmpPop[1]): 
+            flattenPhen.append(demePhen)
+            flattenEnv.append(demeEnv)
+        fileMeanPhenotypes.write("{0},{1}\r\n".format(np.mean(flattenPhen),np.std(flattenPhen)))
+        fileMeanEnvironments.write("{0},{1}\r\n".format(np.mean(flattenEnv),np.std(flattenEnv)))
+        
         newTmpPop = lc.lifeCycle(tmpPop,localParameters)
         tmpPop = newTmpPop
+        
+    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters]
+    for file in filesList: file.close()
         
     return tmpPop
         
