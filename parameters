@@ -1,2 +1,3 @@
 {'probability mutation': 0.5, 'mutation step': [0.2], 'density competition': 0.1, 'basal fertility': 2, 'cooperation cost': 0.05, 'cooperation benefit': 0.5, 'dispersal rate': 0.5, 'demes number': 3, 'mutation correlation coefficient': 0}
 {'probability mutation': 0.5, 'mutation step': [0.2], 'density competition': 0.1, 'basal fertility': 2, 'cooperation cost': 0.05, 'cooperation benefit': 0.5, 'dispersal rate': 0.5, 'demes number': 3, 'mutation correlation coefficient': 0}
+{'probability mutation': 0.5, 'mutation step': [0.2], 'density competition': 0.1, 'basal fertility': 2, 'cooperation cost': 0.05, 'cooperation benefit': 0.5, 'dispersal rate': 0.5, 'demes number': 3, 'mutation correlation coefficient': 0}
