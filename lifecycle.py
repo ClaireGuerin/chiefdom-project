@@ -57,10 +57,10 @@ def applyMutation(mutationEventBoolean,originalPhenotype,phenotypeDeviation):
 def phenotypeBoundaries(unboundedPhenotype,lowBoundary,uppBoundary):
     if unboundedPhenotype < lowBoundary:
         tmp = float(lowBoundary + 10**(-6))
-    elif unboundedPhenotype < 1:
+    elif unboundedPhenotype > uppBoundary:
         tmp = float(uppBoundary - 10**(-6))
     else:
-        tmp = unboundedPhenotype
+        tmp = float(unboundedPhenotype)
     return tmp
         
 def lifeCycle(population, parameters):
@@ -122,7 +122,11 @@ def lifeCycle(population, parameters):
                 demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
              
                 if demeMigrants[offspring]:
-                    tmpPopulationMigration[demeMigrantsDestinations[offspring]] = np.vstack((tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
+                    try:
+                        tmpPopulationMigration[demeMigrantsDestinations[offspring]] = np.vstack((tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
+                    except:
+                        print("failed for deme array {0} with indiv array {1}".format(tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
+                            
                 else:
                     tmpPopulationMigration[deme] = np.vstack((tmpPopulationMigration[deme],demeMutateOffspring[offspring]))
                  
@@ -134,7 +138,5 @@ def lifeCycle(population, parameters):
     
     return [newPopulationPhenotypes,newPopulationEnvironmentalStates]
     
-                
-            
             
             

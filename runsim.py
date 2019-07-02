@@ -10,7 +10,7 @@ import lifecycle as lc
                  
 # Initial conditions and parameters  
 globalParsDict = {'demes number':3,
-                  'generations number':10,
+                  'generations number':1,
                   'initial phenotypes':[0.1],
                   'initial deme size':1} 
 
@@ -37,25 +37,29 @@ def populationDynamics(globalParameters,localParameters):
     tmpPop = [initialPhenotypes,initialEnvironment]
     
     # OUTPUT FILES
-    fileMeanPhenotypes = open("meanphenotypes.txt", "a+")
-    fileMeanEnvironments = open("meanenvironments.txt", "a+")
-    fileParameters = open("parameters","a+")
-    print(localParameters,file=fileParameters)
+#    fileMeanPhenotypes = open("meanphenotypes.txt", "a+")
+#    fileMeanEnvironments = open("meanenvironments.txt", "a+")
+#    fileParameters = open("parameters","a+")
+#    print(localParameters,file=fileParameters)
     
     for gen in range(generationsNumber):
-        flattenPhen = []
-        flattenEnv = []
-        for (demePhen,demeEnv) in zip(tmpPop[0],tmpPop[1]): 
-            flattenPhen.append(demePhen)
-            flattenEnv.append(demeEnv)
-        fileMeanPhenotypes.write("{0},{1}\r\n".format(np.mean(flattenPhen),np.std(flattenPhen)))
-        fileMeanEnvironments.write("{0},{1}\r\n".format(np.mean(flattenEnv),np.std(flattenEnv)))
-        
-        newTmpPop = lc.lifeCycle(tmpPop,localParameters)
-        tmpPop = newTmpPop
-        
-    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters]
-    for file in filesList: file.close()
+#        flattenPhen = []
+#        flattenEnv = []
+#        for (demePhen,demeEnv) in zip(tmpPop[0],tmpPop[1]): 
+#            flattenPhen.append(demePhen)
+#            flattenEnv.append(demeEnv)
+#        fileMeanPhenotypes.write("{0},{1}\r\n".format(np.mean(flattenPhen),np.std(flattenPhen)))
+#        fileMeanEnvironments.write("{0},{1}\r\n".format(np.mean(flattenEnv),np.std(flattenEnv)))
+#
+        try:
+            newTmpPop = lc.lifeCycle(tmpPop,localParameters)
+            tmpPop = newTmpPop
+        except:
+            print("failed at generation {0}".format(gen))
+                
+#        
+#    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters]
+#    for file in filesList: file.close()
         
     return tmpPop
         
