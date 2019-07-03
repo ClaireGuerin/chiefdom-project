@@ -7,6 +7,7 @@ Created on Thu Jun 20 12:44:07 2019
 """
 import numpy as np
 import lifecycle as lc
+import warnings
                  
 # Initial conditions and parameters  
 globalParsDict = {'demes number':3,
@@ -37,19 +38,21 @@ def populationDynamics(globalParameters,localParameters):
     tmpPop = [initialPhenotypes,initialEnvironment]
     
     # OUTPUT FILES
-#    fileMeanPhenotypes = open("meanphenotypes.txt", "a+")
-#    fileMeanEnvironments = open("meanenvironments.txt", "a+")
-#    fileParameters = open("parameters","a+")
-#    print(localParameters,file=fileParameters)
+    fileMeanPhenotypes = open("meanphenotypes.txt", "a+")
+    fileMeanEnvironments = open("meanenvironments.txt", "a+")
+    fileParameters = open("parameters.txt","a+")
+    print(localParameters,file=fileParameters)
     
     for gen in range(generationsNumber):
-#        flattenPhen = []
-#        flattenEnv = []
-#        for (demePhen,demeEnv) in zip(tmpPop[0],tmpPop[1]): 
-#            flattenPhen.append(demePhen)
-#            flattenEnv.append(demeEnv)
-#        fileMeanPhenotypes.write("{0},{1}\r\n".format(np.mean(flattenPhen),np.std(flattenPhen)))
-#        fileMeanEnvironments.write("{0},{1}\r\n".format(np.mean(flattenEnv),np.std(flattenEnv)))
+        demeMeanPhen = []
+        demeStdPhen = []
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            for demePhen in tmpPop[0]: 
+                demeMeanPhen.append(np.nanmean(demePhen))
+                demeStdPhen.append(np.nanstd(demePhen))
+            fileMeanPhenotypes.write("{0},{1}\r\n".format(np.mean(demeMeanPhen),np.std(demeStdPhen)))
+            fileMeanEnvironments.write("{0},{1}\r\n".format(np.mean(tmpPop[1]),np.std(tmpPop[1])))
 #
 #        try:
         newTmpPop = lc.lifeCycle(tmpPop,localParameters)
@@ -58,9 +61,11 @@ def populationDynamics(globalParameters,localParameters):
 #            print("failed at generation {0}".format(gen))
                 
 #        
-#    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters]
-#    for file in filesList: file.close()
+    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters]
+    for file in filesList: file.close()
         
     return tmpPop
         
 test = populationDynamics(globalParsDict,localParsDict)
+
+testpop=[[np.array([[np.nan],[0.1]]), np.array([[np.nan],[0.19187736]]), np.array([[1.00000000e-06],[1.00000000e-01],[9.64776477e-02],[1.43006215e-01]])], [[2], [2], [4]]]
