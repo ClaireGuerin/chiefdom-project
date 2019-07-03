@@ -130,7 +130,7 @@ def lifeCycle(population, parameters):
                 else:
                     tmpPopulationMigration[deme] = np.vstack((tmpPopulationMigration[deme],demeMutateOffspring[offspring]))
                  
-        tmpPopulationMigration[deme] = np.delete(tmpPopulationMigration[deme],0,axis=0)
+    for deme in allDemesList: tmpPopulationMigration[deme] = np.delete(tmpPopulationMigration[deme],0,axis=0)
         
     newPopulationPhenotypes = tmpPopulationMigration
     newPopulationEnvironmentalStates = []
