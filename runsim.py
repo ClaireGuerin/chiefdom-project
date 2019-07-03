@@ -10,7 +10,7 @@ import lifecycle as lc
                  
 # Initial conditions and parameters  
 globalParsDict = {'demes number':3,
-                  'generations number':1,
+                  'generations number':10,
                   'initial phenotypes':[0.1],
                   'initial deme size':1} 
 
@@ -51,11 +51,11 @@ def populationDynamics(globalParameters,localParameters):
 #        fileMeanPhenotypes.write("{0},{1}\r\n".format(np.mean(flattenPhen),np.std(flattenPhen)))
 #        fileMeanEnvironments.write("{0},{1}\r\n".format(np.mean(flattenEnv),np.std(flattenEnv)))
 #
-        try:
-            newTmpPop = lc.lifeCycle(tmpPop,localParameters)
-            tmpPop = newTmpPop
-        except:
-            print("failed at generation {0}".format(gen))
+#        try:
+        newTmpPop = lc.lifeCycle(tmpPop,localParameters)
+        tmpPop = newTmpPop
+#        except:
+#            print("failed at generation {0}".format(gen))
                 
 #        
 #    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters]

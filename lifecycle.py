@@ -62,6 +62,13 @@ def phenotypeBoundaries(unboundedPhenotype,lowBoundary,uppBoundary):
     else:
         tmp = float(unboundedPhenotype)
     return tmp
+
+def carefullyRemoveNans(deme):
+    tmpDeme = deme
+    if len(tmpDeme.shape)>1:
+        tmpDeme = np.delete(tmpDeme,0,axis=0)
+    return tmpDeme
+        
         
 def lifeCycle(population, parameters):
     
@@ -76,7 +83,11 @@ def lifeCycle(population, parameters):
     demeNumber = parameters['demes number']
     mutationCorrelationCoefficient = parameters['mutation correlation coefficient']
     
-    traitsNumber = populationPhenotypes[0].shape[1]
+    try:
+        traitsNumber = populationPhenotypes[0].shape[1]
+    except IndexError:
+        traitsNumber = populationPhenotypes[0].shape[0]
+        
     allDemesList = np.arange(0,demeNumber)
     tmpPopulationMigration = [np.full(traitsNumber,np.nan)]*demeNumber
     
@@ -90,47 +101,53 @@ def lifeCycle(population, parameters):
         
         # REPRODUCTION
         
-        for ind in range(demeSize):
+        for ind in range(demeSize):                
             individualPhenotype = demePhenotypes[ind]
-            individualFertility = fertilityFunction(individualPhenotype,demeMeanPhenotypes,demeEnvironment,fertilityParameters)
-            numberOffspring = np.random.poisson(10**(-6)+individualFertility)
-            tmpDemeOffspring = np.vstack((tmpDemeOffspring,np.repeat([individualPhenotype],numberOffspring,axis=0)))
+            
+            if np.isnan(individualPhenotype).all():
+                pass
+            elif np.isnan(individualPhenotype).any():
+                print("WARNING: there is a missing value in the phenotypes of individual {0} in deme {1}".format(ind,deme))
+            else:
+                individualFertility = fertilityFunction(individualPhenotype,demeMeanPhenotypes,demeEnvironment,fertilityParameters)
+                numberOffspring = np.random.poisson(10**(-6)+individualFertility)
+                tmpDemeOffspring = np.vstack((tmpDemeOffspring,np.repeat([individualPhenotype],numberOffspring,axis=0)))
             
         demeOffspring = np.delete(tmpDemeOffspring,0,axis=0)
         tmpNewDemeSize = demeOffspring.shape[0]
         #tmpEnvStates.append([tmpNewDemeSize])
         
-        if tmpNewDemeSize > 0:
+#        if tmpNewDemeSize > 0:
         
-            # MUTATION
-        
-            demeMutants = np.random.choice([0,1],tmpNewDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
-            #demeNumberMutants = sum(demeMutants)
-            demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,tmpNewDemeSize)
-        
-            demeMutateOffspring = np.full(demeOffspring.shape,np.nan)
-        
-            # MIGRATION
-        
-            demeMigrants = np.random.choice([0,1],tmpNewDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
-            otherDemesTmp = allDemesList
-            otherDemes = np.delete(otherDemesTmp,deme)
-            demeMigrantsDestinations = np.random.choice(otherDemes,tmpNewDemeSize,True)
-        
-            for offspring in range(tmpNewDemeSize):
-                tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
-                demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
-             
-                if demeMigrants[offspring]:
-                    try:
-                        tmpPopulationMigration[demeMigrantsDestinations[offspring]] = np.vstack((tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
-                    except:
-                        print("failed for deme array {0} with indiv array {1}".format(tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
-                            
-                else:
-                    tmpPopulationMigration[deme] = np.vstack((tmpPopulationMigration[deme],demeMutateOffspring[offspring]))
-                 
-    for deme in allDemesList: tmpPopulationMigration[deme] = np.delete(tmpPopulationMigration[deme],0,axis=0)
+        # MUTATION
+    
+        demeMutants = np.random.choice([0,1],tmpNewDemeSize,True,[1-probabilityMutation,probabilityMutation]) #true stands for replacement
+        #demeNumberMutants = sum(demeMutants)
+        demeMutationValues = mutation(mutationStep,mutationCorrelationPattern,tmpNewDemeSize)
+    
+        demeMutateOffspring = np.full(demeOffspring.shape,np.nan)
+    
+        # MIGRATION
+    
+        demeMigrants = np.random.choice([0,1],tmpNewDemeSize,True,[1-dispersalRate,dispersalRate]) #true stands for replacement
+        otherDemesTmp = allDemesList
+        otherDemes = np.delete(otherDemesTmp,deme)
+        demeMigrantsDestinations = np.random.choice(otherDemes,tmpNewDemeSize,True)
+    
+        for offspring in range(tmpNewDemeSize):
+            tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
+            demeMutateOffspring[offspring] = phenotypeBoundaries(tmpPhenotype,0,1)
+         
+            if demeMigrants[offspring]:
+                try:
+                    tmpPopulationMigration[demeMigrantsDestinations[offspring]] = np.vstack((tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
+                except:
+                    print("failed for deme array {0} with indiv array {1}".format(tmpPopulationMigration[demeMigrantsDestinations[offspring]],demeMutateOffspring[offspring]))
+                        
+            else:
+                tmpPopulationMigration[deme] = np.vstack((tmpPopulationMigration[deme],demeMutateOffspring[offspring]))
+                
+        tmpPopulationMigration[deme] = carefullyRemoveNans(tmpPopulationMigration[deme])
         
     newPopulationPhenotypes = tmpPopulationMigration
     newPopulationEnvironmentalStates = []
