@@ -8,20 +8,21 @@ Created on Thu Jun 20 12:44:07 2019
 import numpy as np
 import lifecycle as lc
 import warnings
+import time
                  
 # Initial conditions and parameters  
-globalParsDict = {'demes number':3,
-                  'generations number':10,
-                  'initial phenotypes':[0.1],
+globalParsDict = {'demes number':1000,
+                  'generations number':20000,
+                  'initial phenotypes':[0.5],
                   'initial deme size':1} 
 
-localParsDict = {'probability mutation':0.5, 
-            'mutation step':[0.2], 
+localParsDict = {'probability mutation':0.01, 
+            'mutation step':[0.005], 
             'density competition':0.1, 
             'basal fertility':2, 
             'cooperation cost':0.05, 
             'cooperation benefit':0.5, 
-            'dispersal rate':0.5, 
+            'dispersal rate':0.1, 
             'demes number':globalParsDict['demes number'], 
             'mutation correlation coefficient':0} 
   
@@ -38,10 +39,10 @@ def populationDynamics(globalParameters,localParameters):
     tmpPop = [initialPhenotypes,initialEnvironment]
     
     # OUTPUT FILES
-    fileMeanPhenotypes = open("meanphenotypes.txt", "a+")
-    fileMeanEnvironments = open("meanenvironments.txt", "a+")
-    fileParameters = open("parameters.txt","a+")
-    print(localParameters,file=fileParameters)
+    fileMeanPhenotypes = open("meanphenotypes.txt", "w")
+    fileMeanEnvironments = open("meanenvironments.txt", "w")
+    with open("parameters.txt","w") as fileParameters:
+        print(localParameters,file=fileParameters)
     
     for gen in range(generationsNumber):
         demeMeanPhen = []
@@ -65,7 +66,9 @@ def populationDynamics(globalParameters,localParameters):
     for file in filesList: file.close()
         
     return tmpPop
-        
-test = populationDynamics(globalParsDict,localParsDict)
 
-testpop=[[np.array([[np.nan],[0.1]]), np.array([[np.nan],[0.19187736]]), np.array([[1.00000000e-06],[1.00000000e-01],[9.64776477e-02],[1.43006215e-01]])], [[2], [2], [4]]]
+# RUN SINGLE SIMULATION
+
+time_start = time.time()
+test = populationDynamics(globalParsDict,localParsDict)
+time_elapsed = (time.time() - time_start)
