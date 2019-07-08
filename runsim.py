@@ -52,8 +52,8 @@ def populationDynamics(globalParameters,localParameters):
             for demePhen in tmpPop[0]: 
                 demeMeanPhen.append(np.nanmean(demePhen))
                 demeStdPhen.append(np.nanstd(demePhen))
-            fileMeanPhenotypes.write("{0},{1}\r\n".format(np.mean(demeMeanPhen),np.std(demeStdPhen)))
-            fileMeanEnvironments.write("{0},{1}\r\n".format(np.mean(tmpPop[1]),np.std(tmpPop[1])))
+            fileMeanPhenotypes.write("{0},{1}\r\n".format(np.nanmean(demeMeanPhen),np.std(demeStdPhen)))
+            fileMeanEnvironments.write("{0},{1}\r\n".format(np.nanmean(tmpPop[1]),np.std(tmpPop[1])))
 #
 #        try:
         newTmpPop = lc.lifeCycle(tmpPop,localParameters)
