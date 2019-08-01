@@ -11,8 +11,8 @@ import warnings
 import time
                  
 # Initial conditions and parameters  
-globalParsDict = {'demes number':1000,
-                  'generations number':20000,
+globalParsDict = {'demes number':10,
+                  'generations number':1,
                   'initial phenotypes':[0.5],
                   'initial deme size':1} 
 
@@ -43,7 +43,9 @@ def populationDynamics(globalParameters,localParameters):
     fileMeanEnvironments = open("meanenvironments.txt", "w")
     with open("parameters.txt","w") as fileParameters:
         print(localParameters,file=fileParameters)
+    filePrints = open("logprints.txt", "w")
     
+    filePrints.write("before loop\n")
     for gen in range(generationsNumber):
         demeMeanPhen = []
         demeStdPhen = []
@@ -56,13 +58,15 @@ def populationDynamics(globalParameters,localParameters):
             fileMeanEnvironments.write("{0},{1}\r\n".format(np.nanmean(tmpPop[1]),np.std(tmpPop[1])))
 #
 #        try:
+        filePrints.write("running life cycle for gen {0}\n".format(gen))
         newTmpPop = lc.lifeCycle(tmpPop,localParameters)
+        filePrints.write("updating\n")
         tmpPop = newTmpPop
 #        except:
 #            print("failed at generation {0}".format(gen))
                 
 #        
-    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters]
+    filesList = [fileMeanPhenotypes,fileMeanEnvironments,fileParameters,filePrints]
     for file in filesList: file.close()
         
     return tmpPop

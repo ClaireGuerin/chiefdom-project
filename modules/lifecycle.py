@@ -72,6 +72,7 @@ def carefullyRemoveNans(deme):
         
 def lifeCycle(population, parameters):
     
+    filePrints = open("logprints.txt", "w")
     # EXTRACT VALUES AND PARAMETERS
     
     populationPhenotypes = population[0]
@@ -91,6 +92,7 @@ def lifeCycle(population, parameters):
     allDemesList = np.arange(0,demeNumber)
     tmpPopulationMigration = [np.full(traitsNumber,np.nan)]*demeNumber
     
+    filePrints.write("before deme loop\n")
     for deme in allDemesList: 
         demeEnvironment = environmentalStates[deme]
         demePhenotypes = populationPhenotypes[deme]
@@ -100,7 +102,7 @@ def lifeCycle(population, parameters):
         mutationCorrelationPattern = correlation(mutationStep,mutationCorrelationCoefficient)
         
         # REPRODUCTION
-        
+        filePrints.write("before reproduction\n")
         for ind in range(demeSize):                
             individualPhenotype = demePhenotypes[ind]
             
@@ -133,6 +135,7 @@ def lifeCycle(population, parameters):
         otherDemesTmp = allDemesList
         otherDemes = np.delete(otherDemesTmp,deme)
         demeMigrantsDestinations = np.random.choice(otherDemes,tmpNewDemeSize,True)
+        filePrints.write("before offspring loop\n")
     
         for offspring in range(tmpNewDemeSize):
             tmpPhenotype = applyMutation(demeMutants[offspring],demeOffspring[offspring],demeMutationValues[offspring])
